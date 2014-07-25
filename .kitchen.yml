@@ -1,0 +1,81 @@
+---
+driver:
+  name: vagrant
+  customize:
+    memory: 2048
+    cpus: 4
+
+driver_config:
+  require_chef_omnibus: true
+
+provisioner:
+  name: chef_solo
+
+platforms:
+  - name: ubuntu-12.04
+    driver:
+      network:
+      - ["private_network", {ip: "33.33.35.11"}]
+  - name: debian-7.4
+    driver:
+      network:
+        - ["private_network", {ip: "33.33.35.12"}]
+  - name: centos-6.5
+    driver:
+      network:
+        - ["private_network", {ip: "33.33.35.13"}]
+
+suites:
+  - name: default
+    run_list:
+      - recipe[mysql::server]
+      - recipe[magento::application]
+      - recipe[magento::redis]
+    attributes:
+      php:
+        major_version: '5.5'
+        recompile: true
+      magento:
+        name: test
+        directory: /var/www/test.magento.com
+        main_domain: test.dev
+        domain_map:
+          my.test.dev: two
+          my2.test.dev:
+            website: three
+          my3.test.dev:
+            store: one
+        ssl:
+          public: |
+            -----BEGIN CERTIFICATE-----
+            MIICkzCCAfwCCQDYWvLOm5s1WDANBgkqhkiG9w0BAQUFADCBjTELMAkGA1UEBhMC
+            RVMxDzANBgNVBAgMBk1hZHJpZDESMBAGA1UEBwwJTGFzIFJvemFzMRcwFQYDVQQK
+            DA5JbnRlcmFjdGl2NCBTTDERMA8GA1UEAwwIdGVzdC5kZXYxLTArBgkqhkiG9w0B
+            CQEWHml2YW4uY2hlcHVybnlpQGludGVyYWN0aXY0LmNvbTAeFw0xNDA2MzAyMDI4
+            NTVaFw0xNTA2MzAyMDI4NTVaMIGNMQswCQYDVQQGEwJFUzEPMA0GA1UECAwGTWFk
+            cmlkMRIwEAYDVQQHDAlMYXMgUm96YXMxFzAVBgNVBAoMDkludGVyYWN0aXY0IFNM
+            MREwDwYDVQQDDAh0ZXN0LmRldjEtMCsGCSqGSIb3DQEJARYeaXZhbi5jaGVwdXJu
+            eWlAaW50ZXJhY3RpdjQuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDB
+            7m7as9W3Kc/F3akSwATwzNkVbnEpJVUA1mUch3xm3tkJfT08JcSALGVFKtouDGjF
+            ROyfaPvZBrJ+J+4fRxUM+3FiSQBFsMd+mluSiSaO+LbeO2rBh4G8nNiLz25ebfvm
+            9aaNrydV8QpmfjwoyONnbwiCnSM3nFNv+L1ybOt0oQIDAQABMA0GCSqGSIb3DQEB
+            BQUAA4GBAKCCLZhD3gh1aUz4AykrnlnT9Bl6WwEZ/zpFPH6Yhbce2vmChVGhv7op
+            61eSmDRzCt3w9C/JIdF7g7WWO/AaaHyHORDZwJ4UaWJPPsIsjmbMofSzemH3T25p
+            ZLQq3x/VtS4yyFnr3Gpdl71ho4CMSokoGgSCamacVqqZ+2ZEuK0r
+            -----END CERTIFICATE-----
+          private: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIICXAIBAAKBgQDB7m7as9W3Kc/F3akSwATwzNkVbnEpJVUA1mUch3xm3tkJfT08
+            JcSALGVFKtouDGjFROyfaPvZBrJ+J+4fRxUM+3FiSQBFsMd+mluSiSaO+LbeO2rB
+            h4G8nNiLz25ebfvm9aaNrydV8QpmfjwoyONnbwiCnSM3nFNv+L1ybOt0oQIDAQAB
+            AoGANUpo6e5LBxcVQkEkCcP8V5Ni//GmZPEeR6mihVFxzO7l4yaoIhQayEHq3jPl
+            WowMalEDWNbHhh7CA8rDM5Mb5EdmRN/i/UNXeWvY7TjI8W0EBD1XjNz4O8KLfXuP
+            IHXWKYUzKI/sseQZTqts8yHAVIqhCFctn/k727WBJEMPM6UCQQD0S7RLfMMqcOJK
+            V0tA0B5sy+bVGZCybOtGLiu9O59tmgzwr8r9gAQmA6vsvhoSIfRH4S1XaauyEif8
+            rvQCfDcPAkEAyzkCIJk6elSNgpMumFLiAx6Xkgu7l8jMlGJN46Y3F1+Zv2n2k/Re
+            OFLPtcK1Y+6M2r0/AizQk3lf9djDlWoZTwJASIkN4HgL7tcTqaUft//TeNRWFqH/
+            n6rNdMoSvJ4uaTmba/+WUwymrq7aZnHPheDFCm6mqtS6YSYY72L3GqHNKwJALR/D
+            cSmU6oTLxyqXNgtxU+//B9bDGLjldC0/zkSiBvabVP1aWw/vu+HnbRyG2mGltQxA
+            aWM6DQTuYdB33T1p0QJBAO5yXAV2ObfKQfFgWtqi199bAFUVn1d1p+c8s1Lh1gRA
+            y5Jo0ZSP0wWDmYgM1JcQ+ygia8KqTT1xAAbx5VF6pGg=
+            -----END RSA PRIVATE KEY-----
