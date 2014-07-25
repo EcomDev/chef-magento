@@ -12,7 +12,7 @@ directives = {
 current_directives = node.deep_fetch!('php', 'directives').to_hash
 directives.merge!(current_directives)
 
-node.set[:php][:directives] = directives
+node.automatic[:php][:directives] = directives
 node.default[:php][:major_version] = '5.4'
 
 include_recipe 'php_fpm::default'
