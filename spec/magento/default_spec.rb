@@ -21,6 +21,6 @@ describe 'magento::default' do
   it 'changes connection attributes if recipe is included' do
     chef_run.converge(described_recipe, 'mysql::server')
     expect(connection_settings[:password]).to eq('somerandompassword')
-    expect(connection_settings[:port]).to eq('3307')
+    expect(connection_settings[:port]).to eq(3307)
   end
 end
