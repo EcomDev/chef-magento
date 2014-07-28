@@ -56,7 +56,6 @@ describe 'magento::application' do
     end
 
     expect(chef_run.node[:magento][:application][:database_options][:connection_settings]).to include('user' => 'budy',
-                                                                                                      'password' => '',
                                                                                                       'host' => 'localhost')
   end
 

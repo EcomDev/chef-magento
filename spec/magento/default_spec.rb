@@ -14,7 +14,7 @@ describe 'magento::default' do
 
   it 'does not change connection attributes if recipe is not included' do
     chef_run.converge(described_recipe)
-    expect(connection_settings[:password]).to eq('')
+    expect(connection_settings.key?(:password)).to eq(false)
     expect(connection_settings.key?(:port)).to eq(false)
   end
 
