@@ -6,7 +6,6 @@ namespace 'magento', 'default' do
     host '%'
     namespace 'connection_settings' do
       host 'localhost'
-      password ''
       user 'root'
     end
   end
