@@ -31,12 +31,14 @@ action :create do
     user options[:user]
     group options[:group]
     recursive true
+    not_if { ::File.exists?(options[:directory]) }
   end
 
   resource <<= directory options[:log_dir] do
     user options[:user]
     group options[:group]
     recursive true
+    not_if { ::File.exists?(options[:log_dir]) }
   end
 
   host_run_code = {}

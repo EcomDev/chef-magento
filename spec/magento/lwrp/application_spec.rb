@@ -98,11 +98,23 @@ describe 'magento_test::application' do
                          )
   end
 
-  it 'should create a directory for a magento logging' do
+  it 'should not create a directory for a document root if directory is already exists' do
+    stub_file_exists('/var/www/test.magento.com')
+    expect(chef_run).not_to create_directory('/var/www/test.magento.com')
+  end
+
+
+  it 'should create a directory for a magento logging ' do
     expect(chef_run).to create_directory('/var/www/test.magento.com/var/log').with(
-                             user: 'test',
-                             group: node[:nginx][:group]
-                         )
+                            user: 'test',
+                            group: node[:nginx][:group]
+                        )
+  end
+
+
+  it 'should not create a directory for a magento logging if it is already exists' do
+    stub_file_exists('/var/www/test.magento.com/var/log')
+    expect(chef_run).not_to create_directory('/var/www/test.magento.com/var/log')
   end
 
   it 'should create a php-fpm pool for user' do
