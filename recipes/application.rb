@@ -12,9 +12,9 @@ directives = {
 }
 
 current_directives = node.deep_fetch!('php', 'directives').to_hash
-directives.merge!(current_directives)
+Chef::Mixin::DeepMerge.deep_merge!(current_directives, directives)
 
-node.automatic[:php][:directives] = directives
+node.default[:php][:directives] = directives
 node.default[:php][:major_version] = '5.4'
 
 include_recipe 'php_fpm::default'
@@ -29,7 +29,11 @@ database_options = node[:magento][:default][:database].to_hash
 
 Chef::Mixin::DeepMerge.deep_merge!(node[:magento][:application][:database_options].to_hash, database_options)
 
+puts 'chef attribute before set'
+puts database_options
 node.default[:magento][:application][:database_options] = database_options
+puts 'chef attribute after set'
+puts database_options
 
 magento_application node[:magento][:application][:name] do
   node[:magento][:application].to_hash.each_pair do |key, value|
