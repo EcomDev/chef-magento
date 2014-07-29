@@ -9,9 +9,15 @@ describe 'magento_test::database' do
     end.converge(described_recipe)
   end
 
-  let (:default_params) { chef_run.node.default[:magento][:default][:database]}
+  let (:default_params) { {
+      'encoding' => 'utf8',
+      'connection_settings' => {
+          'host' => 'localhost',
+          'user' => 'root'
+      }
+  }}
 
-  let (:connection_settings) { default_params[:connection_settings] }
+  let (:connection_settings) { default_params['connection_settings'] }
 
   let (:node) { chef_run.node }
 
@@ -27,7 +33,7 @@ describe 'magento_test::database' do
     expect(chef_run).to create_mysql_database('test')
                          .with(
                              connection: connection_settings,
-                             encoding: default_params[:encoding]
+                             encoding: default_params['encoding']
                          )
   end
 

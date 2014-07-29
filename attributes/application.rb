@@ -1,7 +1,16 @@
-namespace 'magento' do
-  application node.deep_fetch!('magento', 'default', 'application')
-end
+require 'chef/mixin/deep_merge'
 
-node.default![:magento][:application][:name] = 'magento'
-node.default![:magento][:application][:main_domain] = 'magento.dev'
-node.default![:magento][:application][:directory] = '/vagrant'
+application_options = node.deep_fetch!('magento', 'default', 'application').to_hash
+
+Chef::Mixin::DeepMerge.deep_merge!(
+    {
+        name: 'magento',
+        main_domain: 'magento.dev',
+        directory: '/vagrant'
+    },
+    application_options
+)
+
+namespace 'magento' do
+  application application_options
+end

@@ -55,8 +55,10 @@ describe 'magento::application' do
       n.set[:magento][:application][:database_options][:connection_settings][:user] = 'budy'
     end
 
-    expect(chef_run.node[:magento][:application][:database_options][:connection_settings]).to include('user' => 'budy',
-                                                                                                      'host' => 'localhost')
+    magento_app = chef_run.magento_application(chef_run.node[:magento][:application][:name])
+
+    expect(magento_app.database_options['connection_settings']).to include('user' => 'budy',
+                                                                           'host' => 'localhost')
   end
 
   it 'creates a magento application with specified attributes' do
