@@ -29,11 +29,7 @@ database_options = node[:magento][:default][:database].to_hash
 
 Chef::Mixin::DeepMerge.deep_merge!(node[:magento][:application][:database_options].to_hash, database_options)
 
-puts 'chef attribute before set'
-puts database_options
 node.default[:magento][:application][:database_options] = database_options
-puts 'chef attribute after set'
-puts database_options
 
 magento_application node[:magento][:application][:name] do
   node[:magento][:application].to_hash.each_pair do |key, value|

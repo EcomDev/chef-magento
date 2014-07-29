@@ -52,7 +52,7 @@ describe 'magento::application' do
 
   it 'makes possible to override default connection settings' do
     node do |n|
-      n.set[:magento][:application][:database_options][:connection_settings][:user] = 'budy'
+      n.set['magento']['application']['database_options']['connection_settings']['user'] = 'budy'
     end
 
     magento_app = chef_run.magento_application(chef_run.node[:magento][:application][:name])
