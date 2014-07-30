@@ -60,8 +60,3 @@ include_recipe 'chef-varnish::default'
 daemon_config = resources(:template => node[:varnish][:daemon_config])
 daemon_config.notifies(:restart, {:service => 'varnish'}, :delayed)
 daemon_config.notifies(:restart, {:service => 'varnishlog'}, :delayed)
-
-# fix debian bug in chef-varnish recipe
-if platform?('debian')
-  daemon_config.cookbook_name = 'magento'
-end
