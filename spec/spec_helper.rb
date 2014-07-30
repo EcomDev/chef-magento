@@ -14,8 +14,11 @@ module SpecHelper
   end
 end
 
+
 RSpec.configure do |c|
   c.include SpecHelper
 end
+
+
 
 ChefSpec::Coverage.start!

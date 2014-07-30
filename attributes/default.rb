@@ -1,21 +1,21 @@
-namespace 'magento', 'default' do
-  namespace 'database' do
+namespace 'magento', 'default', precedence: default do
+  namespace 'database', precedence: default do
     encoding 'utf8'
     user :database_name
     password :database_name
     host '%'
-    namespace 'connection_settings' do
+    namespace 'connection_settings', precedence: default do
       host 'localhost'
       user 'root'
     end
   end
 
-  namespace 'user' do
+  namespace 'user', precedence: default do
     uid :system_default
     gid :system_default
   end
 
-  namespace 'application' do
+  namespace 'application', precedence: default do
     user :system_default
     group :system_default
     uid :system_default
@@ -35,19 +35,19 @@ namespace 'magento', 'default' do
     domain_map Hash.new
     database_options Hash.new
 
-    namespace 'php_fpm_options' do
+    namespace 'php_fpm_options', precedence: default do
       socket true
       socket_user :system_default # Taken from nginx
       socket_group :system_default # Taken from nginx
       request_terminate_timeout :system_default # Taken from time limit
 
-      namespace 'php_admin_flag' do
+      namespace 'php_admin_flag', precedence: default do
         log_errors 'on'
         display_errors 'off'
         display_startup_errors 'off'
       end
 
-      namespace 'php_admin_value' do
+      namespace 'php_admin_value', precedence: default do
         error_log :system_default
         error_reporting 'E_ALL'
         memory_limit :system_default

@@ -23,4 +23,9 @@ describe 'magento::default' do
     expect(connection_settings[:password]).to eq('somerandompassword')
     expect(connection_settings[:port]).to eq(3307)
   end
+
+  it 'includes openssl::upgrade recipe for upgrading openssl library' do
+    chef_run.converge(described_recipe)
+    expect(chef_run).to include_recipe('openssl::upgrade')
+  end
 end
