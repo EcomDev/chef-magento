@@ -22,6 +22,7 @@ include_recipe 'php_fpm::default'
 unless constraint('~>5.5').satisfied_by?(node[:php][:major_version])
   php_pear 'zendopcache' do
     preferred_state 'beta'
+    zend_extensions ['opcache.so']
   end
 end
 

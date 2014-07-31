@@ -24,7 +24,10 @@ describe 'magento::application' do
   end
 
   it 'installs php opcache extension zendopcache ' do
-    expect(chef_run).to install_php_pear('zendopcache').with(preferred_state: 'beta')
+    expect(chef_run).to install_php_pear('zendopcache').with(
+                            preferred_state: 'beta',
+                            zend_extensions: ['opcache.so']
+                        )
   end
 
   it 'does not install php_opcode cache if php version is 5.5' do
