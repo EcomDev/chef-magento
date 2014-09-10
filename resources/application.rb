@@ -24,6 +24,7 @@ attribute :log_dir, :kind_of => [String, Symbol], :default => :magento_default #
 attribute :php_fpm_options, :kind_of => [Hash, Symbol], :default => :magento_default # Magento log directory
 attribute :deny_paths, :kind_of => [Array, Symbol], :default => :magento_default # Denied path in Magento configuration
 attribute :cache_static, :kind_of => [String, Symbol], :default => :magento_default # Cache static files options
+attribute :custom_locations, :kind_of => Hash, :default => {} # Custom locations for nginx
 
 attribute :database_options, :kind_of => [Hash, Symbol], :default => :magento_default # Database connection and creation options
 

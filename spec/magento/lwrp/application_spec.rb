@@ -342,4 +342,61 @@ describe 'magento_test::application' do
                         )
   end
 
+  it 'allows adding custom locations' do
+    test_params do |params|
+      params[:status_ips] = ['192.168.0.0/16', '33.33.33.0/24']
+      params[:deny_paths] = ['/app/', '/lib/']
+      params[:custom_locations] = {
+          '/en-us/' => {
+              rewrite: '^/([a-z-]+)/.*+$ /$1/index.php?$args'
+          }
+      }
+    end
+
+    expect(chef_run).to create_vhost_nginx('test.dev').with(
+                            locations: {
+                                node[:magento][:default][:application][:status_path] => [
+                                    'access_log off;',
+                                    'allow 127.0.0.1;',
+                                    'allow 192.168.0.0/16;',
+                                    'allow 33.33.33.0/24;',
+                                    'deny all;',
+                                    'include fastcgi_params;',
+                                    'fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;',
+                                    'fastcgi_pass test_fpm;',
+                                ],
+                                '~ /\.'  => [
+                                    'deny all;',
+                                    'access_log off;',
+                                    'log_not_found off;'
+                                ],
+                                '^~ /app/' => ['deny all;'],
+                                '^~ /lib/' => ['deny all;'],
+                                '/en-us/' => ['rewrite ^/([a-z-]+)/.*+$ /$1/index.php?$args;'],
+                                '/' => [
+                                    'index index.html ' + node[:magento][:default][:application][:handler] + ';',
+                                    'try_files $uri $uri/ @magento;',
+                                    'expires ' + node[:magento][:default][:application][:cache_static] + ';'
+                                ],
+                                '@magento' => [
+                                    'rewrite / /' + node[:magento][:default][:application][:handler] + ';'
+                                ],
+                                '~ ^.+\.php(/|$)' => [
+                                    'expires off;',
+                                    'fastcgi_split_path_info ^((?U).+\.php)(/?.+)$;',
+                                    'try_files $fastcgi_script_name =404;',
+                                    'include fastcgi_params;',
+                                    'fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;',
+                                    'fastcgi_param PATH_INFO $fastcgi_path_info;',
+                                    'fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;',
+                                    'fastcgi_param MAGE_RUN_CODE $test_mage_run_code;',
+                                    'fastcgi_param MAGE_RUN_TYPE $test_mage_run_type;',
+                                    'fastcgi_pass test_fpm;',
+                                    'fastcgi_read_timeout ' + node[:magento][:default][:application][:time_limit] + 's;',
+                                    'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';'
+                                ]
+                            }
+                        )
+  end
+
 end
