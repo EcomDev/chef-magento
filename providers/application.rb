@@ -130,6 +130,11 @@ def create_vhost_nginx(options, host_run_code, host_run_type)
     options[:deny_paths].each do |path|
       location('^~ ' + path, 'deny all')
     end
+
+    options[:custom_locations].each_pair do |name, value|
+      location(name, value)
+    end
+
     location('/',
              index: "index.html #{options[:handler]}",
              try_files: '$uri $uri/ @magento',
