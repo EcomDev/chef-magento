@@ -4,7 +4,7 @@ maintainer_email 'ivan.chepurnyi@ecomdev.org'
 license          'GPLv3'
 description      'Installs/Configures PHP-FPM pools'
 long_description 'Installs/Configures PHP-FPM pools'
-version          '0.1.9'
+version          '0.1.10'
 
 depends 'vhost'
 depends 'php_fpm'
