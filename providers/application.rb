@@ -59,7 +59,7 @@ action :create do
   end
 
   options[:php_extensions].each_pair  do |ext, ext_data|
-    resource <<= php_pear ext do
+    resource <<= php_pear ext.to_s do
       if ext_data.is_a?(Hash)
         ini_options = {}
         ext_data.each_pair do |key, value|
