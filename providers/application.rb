@@ -158,7 +158,9 @@ def create_vhost_nginx(options, host_run_code, host_run_type)
              },
              fastcgi_pass: "#{options[:name]}_fpm",
              fastcgi_read_timeout: options[:time_limit] + 's',
-             fastcgi_index: options[:handler])
+             fastcgi_index: options[:handler],
+             fastcgi_buffers: options[:buffers],
+             fastcgi_buffer_size: options[:buffer_size])
   end
 end
 
