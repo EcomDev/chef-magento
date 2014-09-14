@@ -233,7 +233,9 @@ describe 'magento_test::application' do
              'fastcgi_param MAGE_RUN_TYPE $test_mage_run_type;',
              'fastcgi_pass test_fpm;',
              'fastcgi_read_timeout ' + node[:magento][:default][:application][:time_limit] + 's;',
-             'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';'
+             'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';',
+             'fastcgi_buffers ' + node[:magento][:default][:application][:buffers] + ';',
+             'fastcgi_buffer_size ' + node[:magento][:default][:application][:buffer_size] + ';'
           ]
         }
       )
@@ -393,7 +395,9 @@ describe 'magento_test::application' do
                                     'fastcgi_param MAGE_RUN_TYPE $test_mage_run_type;',
                                     'fastcgi_pass test_fpm;',
                                     'fastcgi_read_timeout ' + node[:magento][:default][:application][:time_limit] + 's;',
-                                    'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';'
+                                    'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';',
+                                    'fastcgi_buffers ' + node[:magento][:default][:application][:buffers] + ';',
+                                    'fastcgi_buffer_size ' + node[:magento][:default][:application][:buffer_size] + ';'
                                 ]
                             }
                         )

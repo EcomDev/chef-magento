@@ -34,6 +34,8 @@ namespace 'magento', 'default', precedence: default do
     deny_paths %w(/app/ /includes/ /lib/ /media/downloadable/ /pkginfo/ /report/config.xml /var/)
     domain_map Hash.new
     database_options Hash.new
+    buffers '16 16k'
+    buffer_size '32k'
 
     namespace 'php_fpm_options', precedence: default do
       socket true
