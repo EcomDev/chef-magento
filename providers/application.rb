@@ -113,6 +113,21 @@ def create_vhost_nginx(options, host_run_code, host_run_type)
     upstream("#{options[:name]}_fpm", [fpm: options[:name]])
     http_map("#{options[:name]}_mage_run_code", 'http_host', host_run_code, '')
     http_map("#{options[:name]}_mage_run_type", 'http_host', host_run_type, 'store')
+    custom_directive(
+        set: {
+            '$my_ssl' => '""',
+            '$my_port' => '"80"'
+        }
+    )
+    custom_directive(
+        if: '$http_x_forwarded_proto ~ "https"',
+        op: {
+            set: {
+                '$my_ssl' => '"on"',
+                '$my_port' => '"443"'
+            }
+        }
+    )
     unless options[:status_path] == ''
       location(options[:status_path], [
           access_log: 'off',
@@ -154,7 +169,9 @@ def create_vhost_nginx(options, host_run_code, host_run_type)
                  PATH_INFO: '$fastcgi_path_info',
                  PATH_TRANSLATED: '$document_root$fastcgi_path_info',
                  MAGE_RUN_CODE: "$#{options[:name]}_mage_run_code",
-                 MAGE_RUN_TYPE: "$#{options[:name]}_mage_run_type"
+                 MAGE_RUN_TYPE: "$#{options[:name]}_mage_run_type",
+                 SERVER_PORT: '$my_port',
+                 HTTPS: '$my_ssl'
              },
              fastcgi_pass: "#{options[:name]}_fpm",
              fastcgi_read_timeout: options[:time_limit] + 's',

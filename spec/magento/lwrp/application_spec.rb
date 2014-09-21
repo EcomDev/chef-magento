@@ -195,6 +195,14 @@ describe 'magento_test::application' do
             hostnames: true
           }
        },
+       custom_directives: [
+          'set $my_ssl "";',
+          'set $my_port "80";',
+          'if ($http_x_forwarded_proto ~ "https") { ',
+          '    set $my_ssl "on";',
+          '    set $my_port "443";',
+          '}'
+       ],
        locations: {
           node[:magento][:default][:application][:status_path] => [
              'access_log off;',
@@ -231,6 +239,8 @@ describe 'magento_test::application' do
              'fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;',
              'fastcgi_param MAGE_RUN_CODE $test_mage_run_code;',
              'fastcgi_param MAGE_RUN_TYPE $test_mage_run_type;',
+             'fastcgi_param SERVER_PORT $my_port;',
+             'fastcgi_param HTTPS $my_ssl;',
              'fastcgi_pass test_fpm;',
              'fastcgi_read_timeout ' + node[:magento][:default][:application][:time_limit] + 's;',
              'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';',
@@ -393,6 +403,8 @@ describe 'magento_test::application' do
                                     'fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;',
                                     'fastcgi_param MAGE_RUN_CODE $test_mage_run_code;',
                                     'fastcgi_param MAGE_RUN_TYPE $test_mage_run_type;',
+                                    'fastcgi_param SERVER_PORT $my_port;',
+                                    'fastcgi_param HTTPS $my_ssl;',
                                     'fastcgi_pass test_fpm;',
                                     'fastcgi_read_timeout ' + node[:magento][:default][:application][:time_limit] + 's;',
                                     'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';',
