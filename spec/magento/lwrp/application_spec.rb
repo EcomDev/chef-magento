@@ -425,7 +425,9 @@ describe 'magento_test::application' do
     expect(chef_run).to install_composer_project('/var/www/test.magento.com')
                         .with(
                             user: 'test',
-                            group: 'www-data'
+                            group: 'www-data',
+                            dev: true,
+                            quiet: false
                         )
   end
 
