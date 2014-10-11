@@ -59,6 +59,32 @@ describe 'magento_test::database' do
                          )
   end
 
+  it 'should invoke a mysql test database resource with create action' do
+    test_params do |params|
+      params[:create_test] = true
+    end
+
+    expect(chef_run).to create_mysql_database('test_test')
+                        .with(
+                            connection: connection_settings,
+                            encoding: default_params['encoding']
+                        )
+  end
+
+  it 'should invoke a mysql test database user resource with grant action' do
+    test_params do |params|
+      params[:create_test] = true
+    end
+
+    expect(chef_run).to grant_mysql_database_user('test_test')
+                        .with(
+                            connection: connection_settings,
+                            username: 'test',
+                            host: '%',
+                            database_name: 'test_test',
+                        )
+  end
+
   it 'should invoke a magento_db resource with delete action' do
     test_params do |params|
       params[:action] = :delete

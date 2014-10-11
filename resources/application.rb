@@ -28,6 +28,7 @@ attribute :custom_locations, :kind_of => Hash, :default => {} # Custom locations
 attribute :buffers, :kind_of => [String, Symbol], :default => :magento_default # Fastcgi buffers in nginx
 attribute :buffer_size, :kind_of => [String, Symbol], :default => :magento_default # Fastcgi buffer size in nginx
 attribute :database_options, :kind_of => [Hash, Symbol], :default => :magento_default # Database connection and creation options
+attribute :composer, :kind_of => [TrueClass, FalseClass, Symbol], :default => :magento_default # Flag for auto-composer installation
 
 def initialize(*args)
   super

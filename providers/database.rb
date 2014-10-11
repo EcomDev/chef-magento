@@ -24,6 +24,24 @@ action :create do
     database_name options[:name]
     action [:create, :grant]
   end
+
+  if options[:create_test]
+    test_database = options[:name] + '_test'
+
+    mysql_database test_database do
+      connection options[:connection_settings]
+      encoding options[:encoding] if options.key?(:encoding)
+      collation options[:collation] if options.key?(:collation)
+    end
+
+    mysql_database_user test_database do
+      connection options[:connection_settings]
+      username options[:user]
+      host options[:host]
+      database_name test_database
+      action :grant
+    end
+  end
 end
 
 

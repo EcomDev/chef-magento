@@ -5,7 +5,7 @@ attribute :name, :kind_of => [String, Symbol], :name_attribute => true # Name of
 attribute :user, :kind_of => [String, Symbol], :default => :magento_default # Username that will be created for a database
 attribute :password, :kind_of => [String, Symbol], :default => :magento_default # Password for database user
 attribute :host, :kind_of => [String, Symbol], :default => :magento_default # Password for database user
-
+attribute :create_test, :kind_of => [TrueClass, FalseClass, Symbol], :default => :magento_default # Flag for creation of test database
 attribute :encoding, :kind_of => [String, Symbol], :default => :magento_default # Password for database user
 attribute :collation, :kind_of => [String, Symbol], :default => :magento_default # Password for database user
 

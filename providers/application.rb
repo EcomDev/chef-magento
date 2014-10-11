@@ -91,6 +91,16 @@ action :create do
     create    "644 #{options[:user]} #{options[:group]}"
   end
 
+  if options[:composer]
+    run_context.include_recipe 'composer::default'
+
+    resource <<= composer_project options[:directory] do
+      user options[:user]
+      group options[:group]
+      action :install
+    end
+  end
+
   new_resource.update_from_resources(resource)
 end
 
@@ -206,6 +216,8 @@ def resource_options
     if options[:vhost] == 'nginx'
       options[:group] = node[:nginx][:group]
       options[:gid] = node[:nginx][:group]
+    else
+      options[:group] = options[:user]
     end
   else
     options[:gid] = options[:group]

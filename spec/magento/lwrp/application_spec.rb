@@ -415,4 +415,23 @@ describe 'magento_test::application' do
                         )
   end
 
+  it 'installs composer and composer package in project directory if composer flag is set to true' do
+    test_params do |params|
+      params[:composer] = true
+    end
+
+    expect(chef_run).to include_recipe('composer::default')
+
+    expect(chef_run).to install_composer_project('/var/www/test.magento.com')
+                        .with(
+                            user: 'test',
+                            group: 'www-data'
+                        )
+  end
+
+  it 'does not install composer if no flag is specified' do
+    expect(chef_run).not_to include_recipe('composer::default')
+    expect(chef_run).not_to install_composer_project('/var/www/test.magento.com')
+  end
+
 end

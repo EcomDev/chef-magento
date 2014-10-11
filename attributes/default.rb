@@ -4,6 +4,7 @@ namespace 'magento', 'default', precedence: default do
     user :database_name
     password :database_name
     host '%'
+    create_test false
     namespace 'connection_settings', precedence: default do
       host 'localhost'
       user 'root'
@@ -36,6 +37,7 @@ namespace 'magento', 'default', precedence: default do
     database_options Hash.new
     buffers '16 16k'
     buffer_size '32k'
+    composer false
 
     namespace 'php_fpm_options', precedence: default do
       socket true
