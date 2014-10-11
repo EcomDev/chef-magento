@@ -98,6 +98,8 @@ action :create do
       user options[:user]
       group options[:group]
       action :install
+      dev true
+      quiet false
     end
   end
 
