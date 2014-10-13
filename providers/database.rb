@@ -38,6 +38,7 @@ action :create do
       connection options[:connection_settings]
       username options[:user]
       host options[:host]
+      password options[:password]
       database_name test_database
       action :grant
     end
