@@ -21,9 +21,21 @@ action :create do
     gid options[:gid] unless options[:gid].nil?
   end
 
-  resource <<= php_fpm_pool options[:name] do
-    options[:php_fpm_options].each_pair do |key, value|
-      send(key, value)
+  options[:php_extensions].each_pair  do |ext, ext_data|
+    resource <<= php_pear ext.to_s do
+      if ext_data.is_a?(Hash)
+        ini_options = {}
+        ext_data.each_pair do |key, value|
+          if respond_to?(key.to_sym)
+            send(key.to_sym, value)
+          else
+            ini_options[key.to_s] = value
+          end
+        end
+        unless ini_options.empty?
+          directives(ini_options)
+        end
+      end
     end
   end
 
@@ -34,11 +46,45 @@ action :create do
     not_if { ::File.exists?(options[:directory]) }
   end
 
-  resource <<= directory options[:log_dir] do
-    user options[:user]
-    group options[:group]
-    recursive true
-    not_if { ::File.exists?(options[:log_dir]) }
+  if options[:composer]
+    run_context.include_recipe 'composer::default'
+
+    resource <<= composer_project options[:composer_path] do
+      user options[:user]
+      group options[:group]
+      action :install
+      dev true
+      quiet false
+    end
+  end
+
+  if options[:log_dir].start_with?(options[:directory] + ::File::SEPARATOR)
+    paths = options[:log_dir][
+        options[:directory].length+1..options[:log_dir].length
+    ].split(::File::SEPARATOR)
+    # Create all parent directories for log directory with the same rights as project directory
+    base_path = options[:directory]
+    paths.each do |path|
+      base_path = ::File.join(base_path, path)
+      resource <<= directory base_path do
+        user options[:user]
+        group options[:group]
+        not_if { ::File.exists?(base_path) }
+      end
+    end
+  else
+    resource <<= directory options[:log_dir] do
+      user options[:user]
+      group options[:group]
+      recursive true
+      not_if { ::File.exists?(options[:log_dir]) }
+    end
+  end
+
+  resource <<= php_fpm_pool options[:name] do
+    options[:php_fpm_options].each_pair do |key, value|
+      send(key, value)
+    end
   end
 
   host_run_code = {}
@@ -58,24 +104,6 @@ action :create do
     resource <<= create_vhost_nginx(options, host_run_code, host_run_type)
   end
 
-  options[:php_extensions].each_pair  do |ext, ext_data|
-    resource <<= php_pear ext.to_s do
-      if ext_data.is_a?(Hash)
-        ini_options = {}
-        ext_data.each_pair do |key, value|
-          if respond_to?(key.to_sym)
-            send(key.to_sym, value)
-          else
-            ini_options[key.to_s] = value
-          end
-        end
-        unless ini_options.empty?
-          directives(ini_options)
-        end
-      end
-    end
-  end
-
   resource <<= magento_database options[:database_options][:name] do
     options[:database_options].each_pair do |key, value|
       if respond_to?(key)
@@ -89,18 +117,6 @@ action :create do
     frequency 'daily'
     rotate    8
     create    "644 #{options[:user]} #{options[:group]}"
-  end
-
-  if options[:composer]
-    run_context.include_recipe 'composer::default'
-
-    resource <<= composer_project options[:directory] do
-      user options[:user]
-      group options[:group]
-      action :install
-      dev true
-      quiet false
-    end
   end
 
   new_resource.update_from_resources(resource)
@@ -226,6 +242,11 @@ def resource_options
   end
 
   options[:log_dir] = ::File.expand_path(options[:log_dir], options[:directory])
+  if options[:composer_path].nil? || options[:composer_path] == :system_default
+    options[:composer_path] = options[:directory]
+  else
+    options[:composer_path] = ::File.expand_path(options[:composer_path], options[:directory])
+  end
 
   if options[:php_fpm_options].is_a?(Hash)
     specify_php_fpm_options(options)
