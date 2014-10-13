@@ -105,9 +105,28 @@ describe 'magento_test::application' do
 
 
   it 'should create a directory for a magento logging ' do
+    expect(chef_run).to create_directory('/var/www/test.magento.com/var').with(
+                            user: 'test',
+                            group: node[:nginx][:group]
+                        )
+
     expect(chef_run).to create_directory('/var/www/test.magento.com/var/log').with(
                             user: 'test',
                             group: node[:nginx][:group]
+                        )
+  end
+
+  it 'should create directory for magento logging in absolute path' do
+    test_params do |params|
+      params[:log_dir] = '/some/absolute/path/var/log'
+    end
+
+    expect(chef_run).not_to create_directory('/var/www/test.magento.com/var/log')
+
+    expect(chef_run).to create_directory('/some/absolute/path/var/log')
+                        .with(
+                          user: 'test',
+                          group: node[:nginx][:group]
                         )
   end
 
@@ -415,12 +434,18 @@ describe 'magento_test::application' do
                         )
   end
 
-  it 'installs composer and composer package in project directory if composer flag is set to true' do
+  it 'includes composer recipe if composer is set to true' do
     test_params do |params|
       params[:composer] = true
     end
 
     expect(chef_run).to include_recipe('composer::default')
+  end
+
+  it 'installs composer and composer package in project directory if composer flag is set to true' do
+    test_params do |params|
+      params[:composer] = true
+    end
 
     expect(chef_run).to install_composer_project('/var/www/test.magento.com')
                         .with(
@@ -431,8 +456,29 @@ describe 'magento_test::application' do
                         )
   end
 
-  it 'does not install composer if no flag is specified' do
+  it 'installs composer in custom composer path' do
+    test_params do |params|
+      params[:composer] = true
+      params[:composer_path] = '../'
+    end
+
+    expect(chef_run).to install_composer_project('/var/www')
+  end
+
+  it 'installs composer in custom absolute composer path' do
+    test_params do |params|
+      params[:composer] = true
+      params[:composer_path] = '/var/test'
+    end
+
+    expect(chef_run).to install_composer_project('/var/test')
+  end
+
+  it 'does not include composer recipe if path is not specified' do
     expect(chef_run).not_to include_recipe('composer::default')
+  end
+
+  it 'does not install composer if no flag is specified' do
     expect(chef_run).not_to install_composer_project('/var/www/test.magento.com')
   end
 
