@@ -80,6 +80,7 @@ describe 'magento_test::database' do
                         .with(
                             connection: connection_settings,
                             username: 'test',
+                            password: 'test',
                             host: '%',
                             database_name: 'test_test',
                         )
