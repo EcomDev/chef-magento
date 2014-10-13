@@ -43,6 +43,7 @@ action :create do
     user options[:user]
     group options[:group]
     recursive true
+    ignore_failure true # Known issue with NFS OSX share on permission change
     not_if { ::File.exists?(options[:directory]) }
   end
 
@@ -69,6 +70,7 @@ action :create do
       resource <<= directory base_path do
         user options[:user]
         group options[:group]
+        ignore_failure true # Known issue with NFS OSX share on permission change
         not_if { ::File.exists?(base_path) }
       end
     end
