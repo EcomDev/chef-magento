@@ -30,6 +30,7 @@ attribute :buffer_size, :kind_of => [String, Symbol], :default => :magento_defau
 attribute :database_options, :kind_of => [Hash, Symbol], :default => :magento_default # Database connection and creation options
 attribute :composer, :kind_of => [TrueClass, FalseClass, Symbol], :default => :magento_default # Flag for auto-composer installation
 attribute :composer_path, :kind_of => [String, Symbol], :default => :magento_default # Flag for auto-composer installation
+attribute :magento_type, :kind_of => [String, Symbol], :default => :magento_default # Flag for a major Magento version
 
 def initialize(*args)
   super
