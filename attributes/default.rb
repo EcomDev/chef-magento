@@ -39,6 +39,7 @@ namespace 'magento', 'default', precedence: default do
     buffer_size '32k'
     composer false
     composer_path :system_default
+    magento_type '1'
 
     namespace 'php_fpm_options', precedence: default do
       socket true

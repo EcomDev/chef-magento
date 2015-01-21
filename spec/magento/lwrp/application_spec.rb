@@ -270,6 +270,96 @@ describe 'magento_test::application' do
       )
   end
 
+  it 'should create a vhost for Magento 2 application' do
+    test_params do |params|
+      params[:status_ips] = ['192.168.0.0/16', '33.33.33.0/24']
+      params[:deny_paths] = ['/app/', '/lib/']
+      params[:magento_type] = '2'
+    end
+
+    expect(chef_run).to create_vhost_nginx('test.dev').with(
+        listens: [
+            {listen: '80', params: []}
+        ],
+        document_root: '/var/www/test.magento.com/pub',
+        upstreams: {
+            'test_fpm' => {
+                servers: [
+                    {fpm: 'test'}
+                ],
+                custom: {}
+            }
+        },
+        custom_directives: [
+            'set $my_ssl "";',
+            'set $my_port "80";',
+            'if ($http_x_forwarded_proto ~ "https") { ',
+            '    set $my_ssl "on";',
+            '    set $my_port "443";',
+            '}'
+        ],
+        locations: {
+            node[:magento][:default][:application][:status_path] => [
+                'access_log off;',
+                'allow 127.0.0.1;',
+                'allow 192.168.0.0/16;',
+                'allow 33.33.33.0/24;',
+                'deny all;',
+                'include fastcgi_params;',
+                'fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;',
+                'fastcgi_pass test_fpm;',
+            ],
+            '~ /\.'  => [
+                'deny all;',
+                'access_log off;',
+                'log_not_found off;'
+            ],
+            '/media/customer/' => ['deny all;'],
+            '/media/downloadable/' => ['deny all;'],
+            '~ /media/theme_customization/.*\.xml$' => ['deny all;'],
+            '~ cron\.php' => ['deny all;'],
+            '~ ^/errors/.*\.(xml|phtml)$' => ['deny all;'],
+            '/static/' => [
+                'expires ' + node[:magento][:default][:application][:cache_static] + ';',
+                'try_files $uri @magento_static;'
+            ],
+            '/media/' => [
+                'expires ' + node[:magento][:default][:application][:cache_static] + ';',
+                'try_files $uri @magento_media;'
+            ],
+            '/' => [
+                'index index.html ' + node[:magento][:default][:application][:handler] + ';',
+                'try_files $uri $uri/ @magento_app;'
+            ],
+            '@magento_app' => [
+                'rewrite / /' + node[:magento][:default][:application][:handler] + ';'
+            ],
+            '@magento_media' => [
+                'rewrite / /get.php;'
+            ],
+            '@magento_static' => [
+                'rewrite ^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last;'
+            ],
+            '~ ^.+\.php(/|$)' => [
+                'expires off;',
+                'fastcgi_split_path_info ^((?U).+\.php)(/?.+)$;',
+                'try_files $fastcgi_script_name =404;',
+                'include fastcgi_params;',
+                'fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;',
+                'fastcgi_param PATH_INFO $fastcgi_path_info;',
+                'fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;',
+                'fastcgi_param SERVER_PORT $my_port;',
+                'fastcgi_param HTTPS $my_ssl;',
+                'fastcgi_pass test_fpm;',
+                'fastcgi_read_timeout ' + node[:magento][:default][:application][:time_limit] + 's;',
+                'fastcgi_index ' + node[:magento][:default][:application][:handler] + ';',
+                'fastcgi_buffers ' + node[:magento][:default][:application][:buffers] + ';',
+                'fastcgi_buffer_size ' + node[:magento][:default][:application][:buffer_size] + ';'
+            ]
+        }
+    )
+  end
+
   it 'should automatically add SSL options to nginx configuration' do
     test_params do |params|
       params[:ssl] = {

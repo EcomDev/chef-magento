@@ -132,6 +132,14 @@ end
 private
 
 def create_vhost_nginx(options, host_run_code, host_run_type)
+  if options[:magento_type] == '2'
+    _nginx_vhost_magento_two(options, host_run_code, host_run_type)
+  else
+    _nginx_vhost_magento_one(options, host_run_code, host_run_type)
+  end
+end
+
+def _nginx_vhost_magento_one(options, host_run_code, host_run_type)
   vhost_nginx options[:main_domain] do
     action [:create, :enable]
     listen options[:http_port]
@@ -184,10 +192,6 @@ def create_vhost_nginx(options, host_run_code, host_run_type)
              index: "index.html #{options[:handler]}",
              try_files: '$uri $uri/ @magento',
              expires: options[:cache_static])
-    location('/',
-             index: "index.html #{options[:handler]}",
-             try_files: '$uri $uri/ @magento',
-             expires: options[:cache_static])
     location('@magento', rewrite: "/ /#{options[:handler]}")
     location('~ ^.+\.php(/|$)',
              expires: 'off',
@@ -200,6 +204,98 @@ def create_vhost_nginx(options, host_run_code, host_run_type)
                  PATH_TRANSLATED: '$document_root$fastcgi_path_info',
                  MAGE_RUN_CODE: "$#{options[:name]}_mage_run_code",
                  MAGE_RUN_TYPE: "$#{options[:name]}_mage_run_type",
+                 SERVER_PORT: '$my_port',
+                 HTTPS: '$my_ssl'
+             },
+             fastcgi_pass: "#{options[:name]}_fpm",
+             fastcgi_read_timeout: options[:time_limit] + 's',
+             fastcgi_index: options[:handler],
+             fastcgi_buffers: options[:buffers],
+             fastcgi_buffer_size: options[:buffer_size])
+  end
+end
+
+
+def _nginx_vhost_magento_two(options, host_run_code, host_run_type)
+  vhost_nginx options[:main_domain] do
+    action [:create, :enable]
+    listen options[:http_port]
+    if options[:ssl].is_a?(Hash)
+      listen options[:https_port], %w(ssl)
+      ssl options[:ssl]
+    end
+    document_root options[:directory] + '/pub'
+    upstream("#{options[:name]}_fpm", [fpm: options[:name]])
+    custom_directive(
+        set: {
+            '$my_ssl' => '""',
+            '$my_port' => '"80"'
+        }
+    )
+    custom_directive(
+        if: '$http_x_forwarded_proto ~ "https"',
+        op: {
+            set: {
+                '$my_ssl' => '"on"',
+                '$my_port' => '"443"'
+            }
+        }
+    )
+    unless options[:status_path] == ''
+      location(options[:status_path], [
+          access_log: 'off',
+          allow: ['127.0.0.1'].push(options[:status_ips]).flatten,
+          deny: 'all',
+          include: 'fastcgi_params',
+          fastcgi_param: 'SCRIPT_FILENAME $document_root$fastcgi_script_name',
+          fastcgi_pass: "#{options[:name]}_fpm"
+      ])
+    end
+    location('~ /\.',
+             deny: 'all',
+             access_log: 'off',
+             log_not_found: 'off')
+
+    options[:custom_locations].each_pair do |name, value|
+      location(name, value)
+    end
+
+    [
+        '/media/customer/',
+        '/media/downloadable/',
+        '~ /media/theme_customization/.*\.xml$',
+        '~ cron\.php',
+        '~ ^/errors/.*\.(xml|phtml)$'
+    ].each do |location|
+      location(location, 'deny all')
+    end
+
+    location('/static/',
+             expires: options[:cache_static],
+             try_files: '$uri @magento_static')
+
+    location('/media/',
+             expires: options[:cache_static],
+             try_files: '$uri @magento_media')
+
+    location('/',
+             index: "index.html #{options[:handler]}",
+             try_files: '$uri $uri/ @magento_app')
+
+
+    location('@magento_app', rewrite: "/ /#{options[:handler]}")
+    location('@magento_media', rewrite: '/ /get.php')
+    location('@magento_static', rewrite: '^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last')
+
+    location('~ ^.+\.php(/|$)',
+             expires: 'off',
+             fastcgi_split_path_info: '^((?U).+\.php)(/?.+)$',
+             try_files: '$fastcgi_script_name =404',
+             include: 'fastcgi_params',
+             fastcgi_param: {
+                 SCRIPT_FILENAME: '$document_root$fastcgi_script_name',
+                 PATH_INFO: '$fastcgi_path_info',
+                 PATH_TRANSLATED: '$document_root$fastcgi_path_info',
                  SERVER_PORT: '$my_port',
                  HTTPS: '$my_ssl'
              },
