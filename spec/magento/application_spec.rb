@@ -73,4 +73,32 @@ describe 'magento::application' do
                             handler: 'index.php'
                         )
   end
+
+  context 'on Centos 6.5 it' do
+    before(:each) do
+      chef_run_proxy.options(:platform => 'centos', :version => '6.5')
+    end
+
+    it 'installs libssh2' do
+      expect(chef_run).to install_package 'libssh2'
+    end
+
+    it 'installs libssh2-devel' do
+      expect(chef_run).to install_package 'libssh2-devel'
+    end
+  end
+
+  context 'on Ubuntu 13.04 it' do
+    before(:each) do
+      chef_run_proxy.options(:platform => 'ubuntu', :version => '13.04')
+    end
+
+    it 'installs libssh2-1' do
+      expect(chef_run).to install_package 'libssh2-1'
+    end
+
+    it 'installs libssh2-1-devel' do
+      expect(chef_run).to install_package 'libssh2-1-dev'
+    end
+  end
 end

@@ -17,6 +17,14 @@ Chef::Mixin::DeepMerge.deep_merge!(current_directives, directives)
 node.default[:php][:directives] = directives
 node.default[:php][:major_version] = '5.4'
 
+if debian?
+  package 'libssh2-1'
+  package 'libssh2-1-dev'
+elsif rhel?
+  package 'libssh2'
+  package 'libssh2-devel'
+end
+
 include_recipe 'php_fpm::default'
 
 unless constraint('~>5.5').satisfied_by?(node[:php][:major_version])
